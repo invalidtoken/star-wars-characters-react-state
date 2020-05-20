@@ -5,8 +5,7 @@ import isFunction from 'lodash/isFunction';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import CharacterList from './CharacterList';
-
-import dummyData from './dummy-data';
+import endpoint from './endpoint.js';
 
 import './styles.scss';
 
@@ -38,17 +37,18 @@ const reducer = (state, action) => {
   return state;
 };
 
-const fetchCharacters = dispatch => {
+const fetchCharacters = (dispatch) => {
+  console.log(5);
   dispatch({ type: 'LOADING' });
   fetch(endpoint + '/characters')
-    .then(response => response.json())
-    .then(response =>
+    .then((response) => response.json())
+    .then((response) =>
       dispatch({
         type: 'RESPONSE_COMPLETE',
         payload: { characters: response.characters },
       }),
     )
-    .catch(error => dispatch({ type: 'ERROR', payload: { error } }));
+    .catch((error) => dispatch({ type: 'ERROR', payload: { error } }));
 };
 
 const initialState = {
@@ -58,11 +58,13 @@ const initialState = {
 };
 
 const useThunkReducer = (reducer, initialState) => {
+  console.log(3);
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const enhancedDispatch = React.useCallback(
-    action => {
-      console.log(action);
+    (action) => {
+      console.log(4);
+      // console.log(action);
 
       if (isFunction(action)) {
         action(dispatch);
@@ -77,12 +79,12 @@ const useThunkReducer = (reducer, initialState) => {
 };
 
 const Application = () => {
+  console.log(1);
   const [state, dispatch] = useThunkReducer(reducer, initialState);
-  const { characters } = state;
+  console.log(2);
+  const { loading, error, characters } = state;
 
-  useEffect(() => {
-    dispatch(dispatch => {});
-  }, [dispatch]);
+  console.log(loading, error, characters);
 
   return (
     <div className="Application">
