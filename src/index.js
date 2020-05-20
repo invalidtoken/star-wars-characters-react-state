@@ -2,9 +2,11 @@ import React, { useReducer, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import isFunction from 'lodash/isFunction';
 
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import CharacterList from './CharacterList';
+import CharacterView from './CharacterView';
+
 import endpoint from './endpoint.js';
 
 import './styles.scss';
@@ -38,7 +40,6 @@ const reducer = (state, action) => {
 };
 
 const fetchCharacters = (dispatch) => {
-  console.log(5);
   dispatch({ type: 'LOADING' });
   fetch(endpoint + '/characters')
     .then((response) => response.json())
@@ -58,14 +59,10 @@ const initialState = {
 };
 
 const useThunkReducer = (reducer, initialState) => {
-  console.log(3);
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const enhancedDispatch = React.useCallback(
     (action) => {
-      console.log(4);
-      // console.log(action);
-
       if (isFunction(action)) {
         action(dispatch);
       } else {
@@ -79,26 +76,35 @@ const useThunkReducer = (reducer, initialState) => {
 };
 
 const Application = () => {
-  console.log(1);
   const [state, dispatch] = useThunkReducer(reducer, initialState);
-  console.log(2);
   const { loading, error, characters } = state;
 
-  console.log(loading, error, characters);
+  useEffect(() => {
+    dispatch(fetchCharacters);
+  }, []);
 
   return (
     <div className="Application">
       <header>
         <h1>Star Wars Characters</h1>
       </header>
-      <main>
-        <section className="sidebar">
-          <button onClick={() => dispatch(fetchCharacters)}>
-            Fetch Characters
-          </button>
-          <CharacterList characters={characters} />
-        </section>
-      </main>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error.message}</p>
+      ) : (
+        <main>
+          <section className="sidebar">
+            <button onClick={() => dispatch(fetchCharacters)}>
+              Refetch Characters
+            </button>
+            <CharacterList characters={characters} />
+          </section>
+          <section className="CharacterView">
+            <Route path="/characters/:id" component={CharacterView} />
+          </section>
+        </main>
+      )}
     </div>
   );
 };
