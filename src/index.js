@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -9,28 +9,51 @@ import dummyData from './dummy-data';
 
 import './styles.scss';
 
+const initialState = {
+  loading: true,
+  error: null,
+  data: undefined,
+};
+
+const Reducer = (state, action) => {
+  switch (action.type) {
+    case 'LOADING':
+      return {
+        loading: true,
+        error: null,
+        data: undefined,
+      };
+
+    case 'RESPONSE_COMPLETE':
+      return {
+        loading: false,
+        error: null,
+        data: action.payload.data,
+      };
+    case 'ERROR':
+      return {
+        loading: false,
+        error: action.payload.error,
+        data: undefined,
+      };
+  }
+  return state;
+};
+
 const useFetch = (url) => {
   console.log(2);
-  const [loading, setLoading] = useState('true');
-  const [error, setError] = useState(null);
-  const [data, setData] = useState(undefined);
+  const [values, dispatch] = useReducer(Reducer, initialState);
 
   const setToLoading = () => {
-    setLoading(true);
-    setError(null);
-    setData(undefined);
+    dispatch({ type: 'LOADING' });
   };
 
   const setToError = (error) => {
-    setLoading(false);
-    setError(error);
-    setData(undefined);
+    dispatch({ type: 'RESPONSE_COMPLETE', payload: { error } });
   };
 
   const setToData = (data) => {
-    setLoading(false);
-    setError(data);
-    setData(undefined);
+    dispatch({ type: 'RESPONSE_COMPLETE', payload: { data } });
   };
 
   useEffect(() => {
@@ -55,7 +78,7 @@ const useFetch = (url) => {
       });
   }, [url]);
 
-  return { loading, error, data };
+  return values;
 };
 
 const Application = () => {
