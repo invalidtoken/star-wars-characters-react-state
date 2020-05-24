@@ -16,6 +16,7 @@ const initialState = {
 };
 
 const Reducer = (state, action) => {
+  console.log(3);
   switch (action.type) {
     case 'LOADING':
       return {
@@ -43,22 +44,11 @@ const Reducer = (state, action) => {
 const useFetch = (url) => {
   console.log(2);
   const [values, dispatch] = useReducer(Reducer, initialState);
-
-  const setToLoading = () => {
-    dispatch({ type: 'LOADING' });
-  };
-
-  const setToError = (error) => {
-    dispatch({ type: 'RESPONSE_COMPLETE', payload: { error } });
-  };
-
-  const setToData = (data) => {
-    dispatch({ type: 'RESPONSE_COMPLETE', payload: { data } });
-  };
+  console.log(4);
 
   useEffect(() => {
-    console.log(3);
-    setToLoading();
+    console.log(5.1);
+    dispatch({ type: 'LOADING' });
 
     fetch(url)
       .then((res) => {
@@ -70,21 +60,22 @@ const useFetch = (url) => {
       })
       .then((data) => {
         if (data && data.characters) {
-          setToData(data);
+          console.log(5.2);
+          dispatch({ type: 'RESPONSE_COMPLETE', payload: { data } });
         }
       })
       .catch((error) => {
-        setToError(error);
+        dispatch({ type: 'ERROR', payload: { error } });
       });
+    console.log(5.3);
   }, [url]);
-
   return values;
 };
 
 const Application = () => {
   console.log(1);
   let { loading, error, data } = useFetch(endpoint + '/characters');
-  console.log(4);
+  console.log(6);
 
   console.log(loading, error, data);
 
